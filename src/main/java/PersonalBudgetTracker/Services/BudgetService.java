@@ -66,4 +66,22 @@ public class BudgetService {
             throw new BudgetNotFoundException("Budget with ID " + id + " not found.");
         }
     }
+
+    // Method to compare budget limit and current budget
+    public String compareBudgetLimit(Integer budgetId) {
+        Optional<Budget> budgetOpt = budgetRepository.findById(budgetId);
+        if (budgetOpt.isPresent()) {
+            Budget budget = budgetOpt.get();
+            Integer budgetLimit = budget.getBudgetLimit();
+            Integer currentBudget = budget.getCurrentBudget();
+
+            if (currentBudget < budgetLimit) {
+                return "You have " + (budgetLimit - currentBudget) + " left to spend.";
+            } else {
+                return "Your current budget matches the limit.";
+            }
+        } else {
+            throw new BudgetNotFoundException("Budget with ID " + budgetId + " not found.");
+        }
+    }
 }

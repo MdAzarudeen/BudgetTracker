@@ -17,8 +17,8 @@ public class ExpenseController {
 
     // Create a new expense
     @PostMapping("/create")
-    public ResponseEntity<String> createExpense(@RequestBody Expense expense) {
-        String response = expenseService.saveExpense(expense);
+    public ResponseEntity<String> createExpense(@RequestBody Expense expense, @PathVariable Integer budgetId) {
+        String response = expenseService.saveExpense(expense,budgetId);
         return ResponseEntity.ok(response);
     }
 

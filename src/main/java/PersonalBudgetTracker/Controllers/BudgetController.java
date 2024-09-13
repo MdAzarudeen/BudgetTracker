@@ -48,4 +48,10 @@ public class BudgetController {
         Budget budget = budgetService.getBudgetById(id);
         return ResponseEntity.ok(budget);
     }
+
+    // Compare budget limit and current budget
+    @GetMapping("/{id}/compare")
+    public ResponseEntity<String> compareBudgetLimit(@PathVariable Integer id) {
+        String response = budgetService.compareBudgetLimit(id);
+        return ResponseEntity.ok(response);
 }

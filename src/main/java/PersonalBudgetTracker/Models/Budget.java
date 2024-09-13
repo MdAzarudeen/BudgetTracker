@@ -37,6 +37,7 @@ public class Budget {
     @Column(nullable = false)
     private Integer budgetLimit;
 
+    private  Integer currentBudget;
     @OneToMany(mappedBy = "budget", cascade = CascadeType.ALL)
     private List<Expense> expenses;
 

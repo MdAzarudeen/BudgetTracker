@@ -1,8 +1,11 @@
 package PersonalBudgetTracker.Services;
 
+import PersonalBudgetTracker.Exceptions.BudgetNotFoundException;
 import PersonalBudgetTracker.Exceptions.ExpenseNotFoundException;
 import PersonalBudgetTracker.Exceptions.UserNotFoundException;
+import PersonalBudgetTracker.Models.Budget;
 import PersonalBudgetTracker.Models.Expense;
+import PersonalBudgetTracker.Repositories.BudgetRepository;
 import PersonalBudgetTracker.Repositories.ExpenseRepository;
 import PersonalBudgetTracker.Repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +22,33 @@ public class ExpenseService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BudgetRepository budgetRepository;
+
     // Create a new expense
-    public String saveExpense(Expense expense) {
-        expenseRepository.save(expense);
-        return "Expense has been added successfully.";
+    public String saveExpense(Expense expense, Integer budgetId) {
+        // Find the budget associated with the expense
+        Optional<Budget> budgetOpt = budgetRepository.findById(budgetId);
+        if (budgetOpt.isPresent()) {
+            Budget budget = budgetOpt.get();
+
+            // Check if there’s enough budget left
+            if (budget.getCurrentBudget() >= expense.getAmount()) {
+                // Deduct the expense amount from the current budget
+                budget.setCurrentBudget(budget.getCurrentBudget() - expense.getAmount());
+                budgetRepository.save(budget);
+
+                // Save the expense
+                expense.setBudget(budget); // Associate the expense with the budget
+                expenseRepository.save(expense);
+
+                return "Expense has been added and deducted from the budget.";
+            } else {
+                return "Insufficient budget to cover this expense.";
+            }
+        } else {
+            throw new BudgetNotFoundException("Budget with ID " + budgetId + " not found.");
+        }
     }
 
     // Update an existing expense
@@ -61,4 +87,5 @@ public class ExpenseService {
             throw new UserNotFoundException("User with ID " + userId + " not found.");
         }
     }
+
 }
